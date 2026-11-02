@@ -1,54 +1,71 @@
-import random
+import pygame
+import sys
 
+pygame.init()
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Моя игра — Управление персонажем")
 
-def get_valid_number(prompt):
-    while True:
-        try:
-            return int(input(prompt))
-        except ValueError:
-            print("Ошибка Введи целое число")
+clock = pygame.time.Clock()
 
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = 5
 
-def play_round(max_attempts=10):
-    secret_number = random.randint(1, 100)
-    attempts = 0
+        self.frames = [
+            pygame.image.load("player_walk1.png").convert_alpha(),
+            pygame.image.load("player_walk2.png").convert_alpha()
+        ]
+        
+        self.current_frame = 0
+        self.animation_speed = 0.15
+        self.image = self.frames[0]
 
-    print("Игра Угадай число")
-    print("Я загадал число от 1 до 100")
-    print("У тебя есть", max_attempts, "попыток")
+    def update(self, keys):
+        is_moving = False
 
-    while attempts < max_attempts:
-        guess = get_valid_number("Введи число: ")
-        attempts += 1
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.x -= self.speed
+            is_moving = True
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.x += self.speed
+            is_moving = True
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            self.y -= self.speed
+            is_moving = True
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            self.y += self.speed
+            is_moving = True
 
-        if guess == secret_number:
-            print("Угадал")
-            print("Число было", secret_number)
-            print("Попыток потрачено", attempts)
-            return True
-        elif guess < secret_number:
-            print("Мое число больше")
+        if is_moving:
+            self.current_frame += self.animation_speed
+            if self.current_frame >= len(self.frames):
+                self.current_frame = 0
+            self.image = self.frames[int(self.current_frame)]
         else:
-            print("Мое число меньше")
+            self.image = self.frames[0]
 
-        remaining = max_attempts - attempts
-        if remaining > 0:
-            print("Осталось попыток", remaining)
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
 
-    print("Все попытки закончились")
-    print("Загаданное число было", secret_number)
-    return False
+player = Player(WIDTH // 2, HEIGHT // 2)
 
+running = True
+while running:
+    clock.tick(60)
 
-def main():
-    play_again = "да"
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-    while play_again == "да":
-        play_round()
-        play_again = input("Сыграем еще раз да нет: ").strip().lower()
+    keys = pygame.key.get_pressed()
+    player.update(keys)
 
-    print("Спасибо за игру")
+    screen.fill((40, 44, 52))
+    player.draw(screen)
+    pygame.display.flip()
 
-
-if __name__ == "__main__":
-    main()
+pygame.quit()
+sys.exit()
