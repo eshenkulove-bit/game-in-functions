@@ -12,6 +12,11 @@ font = pygame.font.SysFont("arial", 24)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Фоновая музыка
+pygame.mixer.music.load(os.path.join(BASE_DIR, "b19fd19cd041148.mp3"))
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1)
+
 BORDER = 30
 FIELD = pygame.Rect(BORDER, BORDER, WIDTH - 2 * BORDER, HEIGHT - 2 * BORDER)
 
@@ -30,6 +35,10 @@ class Player:
         self.attack_image = load_image("player_attack.png")
         self.image = self.frames[0]
 
+        # Звук атаки
+        self.attack_sound = pygame.mixer.Sound(os.path.join(BASE_DIR, "ef3950ba4011c8e.mp3"))
+        self.attack_sound.set_volume(0.7)
+
         self.current_frame = 0
         self.animation_speed = 0.15
         self.facing_left = False
@@ -42,6 +51,7 @@ class Player:
         if not self.attacking:
             self.attacking = True
             self.attack_timer = 15
+            self.attack_sound.play()
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.image.get_width(), self.image.get_height())
